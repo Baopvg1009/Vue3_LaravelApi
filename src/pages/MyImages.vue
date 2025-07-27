@@ -1,16 +1,29 @@
 <script setup>
 
-const images =[
-  { id: 1, name: 'Image 1', label: 'Label 1', url: 'https://via.placeholder.com/150' },
-  { id: 2, name: 'Image 2', label: 'Label 2', url: 'https://via.placeholder.com/150' },
-  { id: 3, name: 'Image 3', label: 'Label 3', url: 'https://via.placeholder.com/150' },
-  { id: 4, name: 'Image 4', label: 'Label 4', url: 'https://via.placeholder.com/150' },
-]
+import {onMounted, ref} from "vue";
+import axiosClient from "../axios.js";
 
+const images =ref([])
 
+onMounted(() => {
+  axiosClient.get('/api/image')
+      .then((response) => {
+        images.value = response.data;
+      })
+})
 async function copyImageUrl(url) {
   await navigator.clipboard.writeText(url);
   alert('Image URL copied to clipboard!');
+}
+function deleteImage(id) {
+  if (!confirm("Are you sure you want to delete this image?")) {
+    return;
+  }
+
+  axiosClient.delete(`/api/image/${id}`)
+      .then(response => {
+        images.value = images.value.filter(image => image.id !== id)
+      })
 }
 
 </script>
